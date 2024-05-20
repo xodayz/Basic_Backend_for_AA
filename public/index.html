@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js"></script>
+</head>
+
+<body>
+    <h1>Hola Mundo</h1>
+    <label for="">Username</label>
+    <input tpye="text" placeholder="username" id="username">
+    <label for="">Full Name</label>
+    <input tpye="text" placeholder="full name" id="fullname">
+    <br>
+    <br>
+    <button onclick="" id="saveBottom">Registrar</button>
+    <button onclick="">Cancelar</button>
+    <br>
+    <br>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+
+    <script type="text/javascript">
+        const apiURL = 'http://localhost:3000';
+        const tableBody = document.getElementById('table_body');
+        const username = document.getElementById('username');
+        const fullname = document.getElementById('fullname');
+        const saveBottom = document.getElementById('saveBottom');
+
+        let isEditing = false;
+        let userID = 0;
+
+        const headers = {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        };
+        const retrieveUsers = async () => {
+            const response = await fetch(`${apiURL}/users`);
+            const body = await response.json();
+
+            let idNumber = 1;
+            tableBody.innerHTML = '';
+
+            body.forEach((user) => {
+                user.idNumber = idNumber;
+                addRow(user);
+                number += 1;
+            })
+        }
+
+        const addRow = (data) => {
+            tableBody.innerHTML += `
+            <tr>
+                <td>${data.idNumber}</td>
+                <td>${data.username}</td>
+                <td>${data.fullname}</td>
+                <td>
+                    <button onclick="removeUser('${data.id}')">Borrar</button>
+                    <button onclick="getUserDataForEdit('${data.id}')">Editar</button>
+                </td>
+            </tr>
+            `
+        }
+
+        const addNewUser = async () => {
+            const usernameValue = username.value;
+            const fullname = fullname.value;
+
+            const bodyObj = {
+                username: usernameValue,
+                fullname: fullnameValue
+            }
+
+            const body = JSON.stringify(bodyObj);
+
+            await fetch(`${apiURL}/users`, {
+                method: 'POST',
+                headers,
+                body
+            });
+            if (response.ok) {
+                await retrieveUsers();
+            } else {
+                const error = await respone.json();
+                alert(error.message)
+            }
+        }
+
+        const removeUser = async (id) => {
+            const SioNo = prompt(`
+            Desea eliminar este usuario (?)
+            1- Si
+            2 - No
+            `);
+            if (SioNo !== '1') {
+                return
+            }
+
+            const response = await fetch(`${apiURL}/users/${id}`, {
+                method: "DELETE",
+                headers
+            });
+            if (response.ok) {
+                await retrieveUsers();
+            }
+        }
+
+        const getUserDataForEdit = async (id) => {
+            ident = id;
+            const response = await fetch(`${apiURL}/users/${id}`);
+            if (respone.ok) {
+                const body = await response.json();
+                username.value = body.data.username;
+                fullname.value = body.data.fullname;
+                isEditing = true;
+                saveBottom.innerText = 'Guardar';
+            }
+        }
+
+        const saveEditUser = async () => {
+            const usernameValue = username.value;
+            const fullnameValue = fullname.value;
+
+            const bodyObj = {
+                username: usernameValue,
+                fullname: fullnameValue
+            }
+            const body = JSON.stringify(bodyObj);
+
+            const response = await fetch(`${apiURL}/users/${userId}`, {
+                method: "PUT", 
+                headers,
+                body, 
+            });
+
+            if (response.ok) {
+                await retrieveUsers();
+                isEditing = false;
+            } else {
+                const error = await response.json();
+                alert(error.message);
+            }
+        }
+
+        const save = async () => {
+            if (isEditing) {
+                await saveEditUser();
+                return;
+            }
+
+            await addNewUser();
+        }
+
+        const resetAll = () => {
+            isEditing = false;
+            username.value = '';
+            fullname.value = '';
+            btnSave.innerText = 'Registrar';
+        }
+
+        retrieveUsers()
+            .then((response) => {
+            })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+import { DataSource } from "typeorm"
+import "reflect-metadata";
+
+ export  const myDataSource = new DataSource({
+    type: "sqlite",
+    database: "db/data.db",
+    entities: ["db/entity/*.ts"],
+    logging: true,
+    synchronize: true,
+})
